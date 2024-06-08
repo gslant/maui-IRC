@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="IRC.MainPage">
+    <ContentView>
+        <StackLayout>
+            <Button Clicked="Freenode_Button_Clicked"
+                    Text="Connect Freenode"
+                    WidthRequest="200"
+                    HeightRequest="50"/>
+            <Button Clicked="Libera_Button_Clicked"
+                    Text="Connect Libera"
+                    WidthRequest="200"
+                    HeightRequest="50"/>
+        </StackLayout>
+        
+    </ContentView>
+</ContentPage>

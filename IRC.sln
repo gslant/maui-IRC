@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34622.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IRC", "IRC\IRC.csproj", "{FE996A6E-A492-4B93-A1A0-B9548B695475}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FE996A6E-A492-4B93-A1A0-B9548B695475}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FE996A6E-A492-4B93-A1A0-B9548B695475}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FE996A6E-A492-4B93-A1A0-B9548B695475}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{FE996A6E-A492-4B93-A1A0-B9548B695475}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FE996A6E-A492-4B93-A1A0-B9548B695475}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FE996A6E-A492-4B93-A1A0-B9548B695475}.Release|Any CPU.Deploy.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {23E88B12-FCAE-42C8-A961-8CB7747B9247}
+	EndGlobalSection
+EndGlobal

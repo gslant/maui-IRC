@@ -16,9 +16,9 @@ namespace IRC.Services
             Message message = new Message();
             message.RawMessage = text;
 
-            if (text == "/list")
+            if (text == "/names")
             {
-                message.Command = "LIST";
+                message.Command = "NAMES";
             }
             else if (text.StartsWith("/msg"))
             {

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:vm="clr-namespace:IRC.ViewModels"
              x:Class="IRC.ConnectionPage"
              Loaded="OnPageLoaded"
              Unloaded="OnPageUnloaded">
@@ -19,17 +18,15 @@
                 SelectedItem="{Binding CurrentChannel}"
                 ItemDisplayBinding="{Binding Name}"/>
 
-        <CollectionView Grid.Row="1"
-                        ItemsSource="{Binding CurrentChannel.Messages}"
-                        Margin="20"
-                        x:Name="MessageCollectionView"
-                        ItemAppearing="MessageCollectionView_ItemAppearing">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Label Text="{Binding .}" FontFamily="JetBrainsMonoMedium"/>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+        <ScrollView Grid.Row="1" Margin="20" x:Name="MessageScrollView">
+            <StackLayout x:Name="MessageStackLayout" BindableLayout.ItemsSource="{Binding CurrentChannel.Messages}">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate>
+                        <Label Text="{Binding .}" FontFamily="JetBrainsMonoMedium"/>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </StackLayout>
+        </ScrollView>
 
         <Grid Grid.Row="2" ColumnSpacing="20">
             <Grid.ColumnDefinitions>

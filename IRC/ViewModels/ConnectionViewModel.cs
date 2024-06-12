@@ -55,6 +55,7 @@ namespace IRC.ViewModels
         public ICommand SendCommand { get; }
 
         public event PropertyChangedEventHandler PropertyChanged;
+        public event Action<bool> MessageAdded;
 
         public ConnectionViewModel(string hostname, int port)
         {
@@ -98,7 +99,7 @@ namespace IRC.ViewModels
                             CurrentChannel = CreateOrGetChannel(result);
                         }
 
-                        AddTextToScroll(serverMsg);
+                        AddTextToScroll(serverMsg, isUserMessage: false);
                     }
                     await Task.Delay(100);
                 }
@@ -123,9 +124,10 @@ namespace IRC.ViewModels
             }
         }
 
-        private void AddTextToScroll(string text)
+        private void AddTextToScroll(string text, bool isUserMessage)
         {
             CurrentChannel.AddMessage(text);
+            MessageAdded?.Invoke(isUserMessage);
         }
 
         private void WriteMessageCommand(Message m)
@@ -139,7 +141,7 @@ namespace IRC.ViewModels
             writer.WriteLine(fullMsg + "\r\n");
             writer.Flush();
 
-            AddTextToScroll(fullMsg);
+            AddTextToScroll(fullMsg, isUserMessage: true);
         }
 
         private void OnSendCommand(string message)

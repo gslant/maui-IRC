@@ -1,5 +1,6 @@
 using IRC.Models;
 using IRC.Services;
+using IRC.ViewModels;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -7,6 +8,41 @@ using System.Net.Sockets;
 
 namespace IRC
 {
+    public partial class ConnectionPage : ContentPage
+    {
+        public ConnectionPage(string hostname, int port)
+        {
+            InitializeComponent();
+
+            // Set the BindingContext to an instance of ConnectionViewModel
+            BindingContext = new ConnectionViewModel(hostname, port);
+        }
+
+        // Event handler for the Loaded event
+        private void OnPageLoaded(object sender, EventArgs e)
+        {
+            // Any additional logic you might want to execute when the page is loaded
+        }
+
+        // Event handler for the Unloaded event
+        private void OnPageUnloaded(object sender, EventArgs e)
+        {
+            if (BindingContext is ConnectionViewModel viewModel)
+            {
+                viewModel.Cleanup();
+            }
+        }
+
+        private void MessageCollectionView_ItemAppearing(object sender, ItemVisibilityEventArgs e)
+        {
+            var items = ((CollectionView)sender).ItemsSource as ObservableCollection<string>;
+            if (items != null && e.Item == items[items.Count - 1])
+            {
+                MessageCollectionView.ScrollTo(e.Item);
+            }
+        }
+    }
+    /*
     public partial class ConnectionPage : ContentPage
     {
         TcpClient tcpClient;
@@ -218,19 +254,32 @@ namespace IRC
 
     }
 
-}
+} */
 
-public class Channel
+    public class Channel : INotifyPropertyChanged
 {
-    public string Name {  get; set; }
-    public StackLayout messageStack {  get; set; }
+    public string Name { get; set; }
+    private ObservableCollection<string> _messages;
+    public ObservableCollection<string> Messages
+    {
+        get => _messages;
+        set
+        {
+            _messages = value;
+            OnPropertyChanged(nameof(Messages));
+        }
+    }
+
     public Channel(string name)
     {
-        this.Name = name;
-        messageStack = new StackLayout
-        {
-            VerticalOptions = LayoutOptions.StartAndExpand
-        };
+        Name = name;
+        Messages = new ObservableCollection<string>();
+    }
+
+    public void AddMessage(string message)
+    {
+        Messages.Add(message);
+        OnPropertyChanged(nameof(Messages));
     }
 
     public static Channel? GetChannelByName(ObservableCollection<Channel> channels, string name)
@@ -243,8 +292,16 @@ public class Channel
         return channels.Any(c => c.Name == name);
     }
 
+    public event PropertyChangedEventHandler PropertyChanged;
+
+    protected virtual void OnPropertyChanged(string propertyName)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+}
 }
 
+/*
 public class ChannelManager
 {
     private Channel _currentChannel;
@@ -268,3 +325,4 @@ public class ChannelManager
         CurrentChannelChanged?.Invoke(this, EventArgs.Empty);
     }
 }
+*/

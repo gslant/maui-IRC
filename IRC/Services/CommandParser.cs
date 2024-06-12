@@ -11,12 +11,12 @@ namespace IRC.Services
     internal class CommandParser
     {
 
-        public static Message ParseCommand(string text, ref ObservableCollection<Channel> channels, ref Channel currentChannel)
+        public static Message ParseCommand(string text, Channel currentChannel)
         {
             Message message = new Message();
             message.RawMessage = text;
 
-            if(text == "/list")
+            if (text == "/list")
             {
                 message.Command = "LIST";
             }
@@ -30,13 +30,6 @@ namespace IRC.Services
                 message.Command = "JOIN";
 
                 string channelName = text.Substring(text.IndexOf(' ') + 1);
-
-                if(Channel.GetChannelByName(channels, channelName) != null)
-                {
-                    currentChannel = Channel.GetChannelByName(channels, channelName);
-                }
-
-
                 message.Args = new List<string>() { channelName };
             }
             else

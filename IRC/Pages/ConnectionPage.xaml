@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:vm="clr-namespace:IRC.ViewModels"
              x:Class="IRC.ConnectionPage"
              Loaded="OnPageLoaded"
              Unloaded="OnPageUnloaded">
-
 
     <Grid>
         <Grid.RowDefinitions>
@@ -14,36 +14,41 @@
         </Grid.RowDefinitions>
 
         <Picker x:Name="channelPicker"
-                Title="Select Channel">
-        </Picker>
+                Title="Select Channel"
+                ItemsSource="{Binding Channels}"
+                SelectedItem="{Binding CurrentChannel}"
+                ItemDisplayBinding="{Binding Name}"/>
 
-        <ScrollView
-            x:Name="MessageScrollView"
-            Grid.Row="1"
-            Margin="20">
-        </ScrollView>
+        <CollectionView Grid.Row="1"
+                        ItemsSource="{Binding CurrentChannel.Messages}"
+                        Margin="20"
+                        x:Name="MessageCollectionView"
+                        ItemAppearing="MessageCollectionView_ItemAppearing">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Label Text="{Binding .}" FontFamily="JetBrainsMonoMedium"/>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
 
-
-        <Grid Grid.Row="2"
-            ColumnSpacing="20">
+        <Grid Grid.Row="2" ColumnSpacing="20">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="100"/>
             </Grid.ColumnDefinitions>
 
             <Entry Grid.Column="0"
-                x:Name="MessageEntry"
-                TextColor="White"
-                Completed="Send_Clicked">
-            </Entry>
+                   x:Name="MessageEntry"
+                   TextColor="White"
+                   Text="{Binding MessageText, Mode=TwoWay}"/>
+
             <Button Grid.Column="1"
-                x:Name="Send"
-                Text="Send"
-                Clicked="Send_Clicked"
-                FontSize="32"/>
-
+                    x:Name="Send"
+                    Text="Send"
+                    FontSize="32"
+                    Command="{Binding SendCommand}"
+                    CommandParameter="{Binding Text, Source={x:Reference MessageEntry}}"/>
         </Grid>
-
     </Grid>
 
 </ContentPage>

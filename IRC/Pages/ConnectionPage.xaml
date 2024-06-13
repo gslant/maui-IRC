@@ -37,7 +37,8 @@
             <Entry Grid.Column="0"
                    x:Name="MessageEntry"
                    TextColor="White"
-                   Text="{Binding MessageText, Mode=TwoWay}"/>
+                   Text="{Binding MessageText, Mode=TwoWay}"
+                   Completed="MessageEntry_Completed"/>
 
             <Button Grid.Column="1"
                     x:Name="Send"

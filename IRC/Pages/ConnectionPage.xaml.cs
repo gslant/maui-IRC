@@ -68,8 +68,8 @@ namespace IRC
 public class Channel : INotifyPropertyChanged
 {
     public string Name { get; set; }
-    private ObservableCollection<string> _messages;
-    public ObservableCollection<string> Messages
+    private ObservableCollection<Message> _messages;
+    public ObservableCollection<Message> Messages
     {
         get => _messages;
         set
@@ -82,12 +82,12 @@ public class Channel : INotifyPropertyChanged
     public Channel(string name)
     {
         Name = name;
-        Messages = new ObservableCollection<string>();
+        Messages = new ObservableCollection<Message>();
     }
 
-    public void AddMessage(string message)
+    public void AddMessage(string text, MessageType type)
     {
-        Messages.Add(message);
+        Messages.Add(new Message(text, type));
         OnPropertyChanged(nameof(Messages));
     }
 
@@ -101,7 +101,7 @@ public class Channel : INotifyPropertyChanged
         return channels.Any(c => c.Name == name);
     }
 
-    public event PropertyChangedEventHandler PropertyChanged;
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     protected virtual void OnPropertyChanged(string propertyName)
     {

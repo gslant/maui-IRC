@@ -11,9 +11,9 @@ namespace IRC.Services
     internal class CommandParser
     {
 
-        public static Message ParseCommand(string text, Channel currentChannel)
+        public static MessageCommand ParseCommand(string text, Channel currentChannel)
         {
-            Message message = new Message();
+            MessageCommand message = new MessageCommand();
             message.RawMessage = text;
 
             if (text == "/names")

@@ -4,15 +4,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace IRC.Models
+namespace IRC.Models;
+public enum MessageType
 {
-    internal class Message
-    {
-        public string RawMessage { get; set; }
+    UserSent,
+    Received,
+    Warning,
+    Error,
+    System
+}
 
-        //Only use prefix as registered nickname of self, not required
-        public string? Prefix { get; set; }
-        public string Command { get; set; }
-        public List<string> Args { get; set; }
+public class Message
+{
+    public string Text { get; set; }
+    public MessageType Type { get; set; }
+
+    public Message(string text, MessageType type)
+    {
+        Text = text;
+        Type = type;
     }
 }
+

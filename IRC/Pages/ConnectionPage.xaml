@@ -2,8 +2,14 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="IRC.ConnectionPage"
+             xmlns:local="clr-namespace:IRC"
              Loaded="OnPageLoaded"
              Unloaded="OnPageUnloaded">
+    <ContentPage.Resources>
+        <ResourceDictionary>
+            <local:MessageTypeToColorConverter x:Key="MessageTypeToColorConverter" />
+        </ResourceDictionary>
+    </ContentPage.Resources>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -22,7 +28,7 @@
             <StackLayout x:Name="MessageStackLayout" BindableLayout.ItemsSource="{Binding CurrentChannel.Messages}">
                 <BindableLayout.ItemTemplate>
                     <DataTemplate>
-                        <Label Text="{Binding .}" FontFamily="JetBrainsMonoMedium"/>
+                        <Label Text="{Binding Text}" FontFamily="JetBrainsMonoMedium" TextColor="{Binding Type, Converter={StaticResource MessageTypeToColorConverter}}"/>
                     </DataTemplate>
                 </BindableLayout.ItemTemplate>
             </StackLayout>

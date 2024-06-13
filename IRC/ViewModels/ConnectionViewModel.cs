@@ -18,7 +18,7 @@ namespace IRC.ViewModels
         private string _nick = "billbob123";
         private string _username = "billbob123";
         private string _realName = "billbob123";
-        private string _messageText;
+        private string _messageText = string.Empty;
 
         public string MessageText
         {
@@ -30,7 +30,7 @@ namespace IRC.ViewModels
             }
         }
 
-        private ObservableCollection<Channel> _channels;
+        private ObservableCollection<Channel> _channels = new ObservableCollection<Channel>();
         public ObservableCollection<Channel> Channels
         {
             get => _channels;
@@ -41,7 +41,7 @@ namespace IRC.ViewModels
             }
         }
 
-        private Channel _currentChannel;
+        private Channel _currentChannel = new Channel("---");
         public Channel CurrentChannel
         {
             get => _currentChannel;
@@ -54,8 +54,9 @@ namespace IRC.ViewModels
 
         public ICommand SendCommand { get; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        public event Action<bool> MessageAdded;
+        public event PropertyChangedEventHandler? PropertyChanged;
+        // Empty delegate so no need to check for subscribers before publishing
+        public event Action<bool> MessageAdded = delegate { };
 
         public ConnectionViewModel(string hostname, int port)
         {
@@ -63,10 +64,7 @@ namespace IRC.ViewModels
             reader = new StreamReader(tcpClient.GetStream());
             writer = new StreamWriter(tcpClient.GetStream());
 
-            Channels = new ObservableCollection<Channel>();
-            Channel defaultChan = new Channel("default");
-            Channels.Add(defaultChan);
-            CurrentChannel = defaultChan;
+            Channels.Add(CurrentChannel);
 
             SendCommand = new Command<string>(message => OnSendCommand(message));
 
@@ -85,7 +83,7 @@ namespace IRC.ViewModels
 
                 while (true)
                 {
-                    string serverMsg = await reader.ReadLineAsync();
+                    string? serverMsg = await reader.ReadLineAsync();
                     if (serverMsg != null)
                     {
                         if (serverMsg.StartsWith("PING"))
@@ -120,7 +118,7 @@ namespace IRC.ViewModels
             }
             else
             {
-                return Channel.GetChannelByName(Channels, channelName);
+                return Channel.GetChannelByName(Channels, channelName)!;
             }
         }
 
@@ -146,6 +144,11 @@ namespace IRC.ViewModels
 
         private void OnSendCommand(string message)
         {
+            if(CurrentChannel.Name == "---")
+            {
+                AddTextToScroll("Please join a real channel before sending messages", isUserMessage: true);
+                return;
+            }
             Debug.WriteLine("Send command executed"); // Add this line for debugging
             if (!string.IsNullOrEmpty(MessageText))
             {

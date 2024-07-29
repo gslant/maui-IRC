@@ -95,6 +95,11 @@ namespace IRC.ViewModels
                             string[] parts = serverMsg.Split(":");
                             string result = parts[2];
                             CurrentChannel = CreateOrGetChannel(result);
+                            Debug.WriteLine("string parsed " + result + " " + " Cur = " + CurrentChannel.Name);
+                            foreach(Channel c in Channels)
+                            {
+                                Debug.Write(c.Name + ",");
+                            }
                         }
 
                         AddTextToScroll(serverMsg, isUserMessage: false, type: MessageType.Received);
@@ -149,12 +154,7 @@ namespace IRC.ViewModels
             {
                 MessageCommand m = CommandParser.ParseCommand(MessageText, CurrentChannel);
 
-                if (m.Command == "JOIN" && m.Args.Count > 0)
-                {
-                    string channelName = m.Args[0];
-                    CurrentChannel = CreateOrGetChannel(channelName);
-                }
-                if(CurrentChannel.Name == "---")
+                if(CurrentChannel.Name == "---" && m.Command != "JOIN")
                 {
                     AddTextToScroll("Please join a real channel before sending messages", isUserMessage: true, type: MessageType.Error);
                     return;

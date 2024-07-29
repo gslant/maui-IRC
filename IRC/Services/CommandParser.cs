@@ -13,31 +13,25 @@ namespace IRC.Services
 
         public static MessageCommand ParseCommand(string text, Channel currentChannel)
         {
-            MessageCommand message = new MessageCommand();
-            message.RawMessage = text;
+            MessageCommand m = new MessageCommand();
+            text = text.Trim();
+            m.RawMessage = text;
 
-            if (text == "/names")
+            if (text.StartsWith("/"))
             {
-                message.Command = "NAMES";
-            }
-            else if (text.StartsWith("/msg"))
-            {
-                message.Command = "PRIVMSG";
-                message.Args = new List<string>() { text.Substring(text.IndexOf(' ') + 1) };
-            }
-            else if (text.StartsWith("/join"))
-            {
-                message.Command = "JOIN";
+                string[] commandParts = text.Split(' ');
+                m.Command = commandParts[0].Substring(1).ToUpper();
+                m.Args = commandParts.Skip(1).ToList();
 
-                string channelName = text.Substring(text.IndexOf(' ') + 1);
-                message.Args = new List<string>() { channelName };
+                if (m.Command == "MSG") m.Command = "PRIVMSG";
             }
+
             else
             {
-                message.Command = "PRIVMSG";
-                message.Args = new List<string> { currentChannel.Name, text };
+                m.Command = "PRIVMSG";
+                m.Args = new List<string> { currentChannel.Name, text };
             }
-            return message;
+            return m;
         }
     }
 }

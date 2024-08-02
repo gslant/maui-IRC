@@ -18,7 +18,7 @@ namespace IRC
 
         private void Libera_Button_Clicked(object sender, EventArgs e)
         {
-            Navigation.PushAsync(new ConnectionPage("irc.libera.chat", 6697));
+            Navigation.PushAsync(new ConnectionPage("irc.libera.chat", 6667));
         }
 
     }

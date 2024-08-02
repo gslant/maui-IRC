@@ -12,7 +12,14 @@ namespace IRC.MessageHandlers
     {
         public void Handle(Message message, ConnectionViewModel viewModel)
         {
-            viewModel.CurrentChannel = viewModel.CreateOrGetChannel(message.Params[0]);
+            if(message.Params!= null)
+            {
+                viewModel.CurrentChannel = viewModel.CreateOrGetChannel(message.Params[0]);
+            }
+            else if(message.Trailing != null)
+            {
+                viewModel.CurrentChannel = viewModel.CreateOrGetChannel(message.Trailing);
+            }
         }
     }
 }

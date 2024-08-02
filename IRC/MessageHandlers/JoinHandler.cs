@@ -12,13 +12,16 @@ namespace IRC.MessageHandlers
     {
         public void Handle(Message message, ConnectionViewModel viewModel)
         {
-            if(message.Params!= null)
+            if (message.Prefix != null && message.Prefix.Split('!')[0] == viewModel.Nick) //Only switch channels if JOIN is for self
             {
-                viewModel.CurrentChannel = viewModel.CreateOrGetChannel(message.Params[0]);
-            }
-            else if(message.Trailing != null)
-            {
-                viewModel.CurrentChannel = viewModel.CreateOrGetChannel(message.Trailing);
+                if (message.Params!= null)
+                {
+                    viewModel.CurrentChannel = viewModel.CreateOrGetChannel(message.Params[0]);
+                }
+                else if(message.Trailing != null)
+                {
+                    viewModel.CurrentChannel = viewModel.CreateOrGetChannel(message.Trailing);
+                }
             }
         }
     }

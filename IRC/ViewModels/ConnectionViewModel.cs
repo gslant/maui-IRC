@@ -23,6 +23,12 @@ namespace IRC.ViewModels
 
         private readonly MessageHandlerFactory _handlerFactory;
 
+        public string Nick
+        {
+            get => _nick;
+            set => _nick = value;
+        }
+
         public string MessageText
         {
             get => _messageText;

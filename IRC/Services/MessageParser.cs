@@ -22,7 +22,7 @@ namespace IRC.Services
                 
             if (parsedMessage[currentPos][0] == ':') //Message has a prefix
             {
-                m.Prefix = parsedMessage[currentPos++];
+                m.Prefix = parsedMessage[currentPos++].Substring(1); //skip :
             }
             m.Command = parsedMessage[currentPos++];
 

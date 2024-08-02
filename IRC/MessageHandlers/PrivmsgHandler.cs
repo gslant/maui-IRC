@@ -20,7 +20,7 @@ namespace IRC.MessageHandlers
             else
             {
                 string[] sender = message.Prefix.Split('!');
-                destination = viewModel.CreateOrGetChannel(sender[0].Substring(1));
+                destination = viewModel.CreateOrGetChannel(sender[0]);
             }
             viewModel.AddTextToScroll(message.RawMessage, destination, false, MessageType.Received);
         }

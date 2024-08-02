@@ -1,4 +1,5 @@
-﻿using IRC.Models;
+﻿using IRC.MessageHandlers;
+using IRC.Models;
 using IRC.Services;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -16,9 +17,17 @@ namespace IRC.ViewModels
         StreamWriter writer;
 
         private string _nick = "billbob123";
-        private string _username = "billbob123";
-        private string _realName = "billbob123";
+        private string _username = "bill";
+        private string _realName = "bill";
         private string _messageText = string.Empty;
+
+        private readonly MessageHandlerFactory _handlerFactory;
+
+        public string Nick
+        {
+            get => _nick;
+            set => _nick = value;
+        }
 
         public string MessageText
         {
@@ -66,6 +75,8 @@ namespace IRC.ViewModels
 
             Channels.Add(CurrentChannel);
 
+            _handlerFactory = new MessageHandlerFactory();
+
             SendCommand = new Command<string>(message => OnSendCommand(message));
 
             InitializeConnection();
@@ -75,10 +86,10 @@ namespace IRC.ViewModels
         {
             try
             {
-                MessageCommand nickMsg = new MessageCommand { Command = "NICK", Args = new List<string> { _nick } };
+                Message nickMsg = new Message { Command = "NICK", Params = new List<string> { _nick } };
                 WriteMessageCommand(nickMsg);
 
-                MessageCommand userMsg = new MessageCommand { Command = "USER", Args = new List<string> { _username, "0 * :", _realName } };
+                Message userMsg = new Message { Command = "USER", Params = new List<string> { _username, "0 * :", _realName } };
                 WriteMessageCommand(userMsg);
 
                 while (true)
@@ -86,23 +97,13 @@ namespace IRC.ViewModels
                     string? serverMsg = await reader.ReadLineAsync();
                     if (serverMsg != null)
                     {
-                        if (serverMsg.StartsWith("PING"))
-                        {
-                            WriteMessageCommand(new MessageCommand { Command = "PONG", Args = new List<string> { serverMsg.Substring(5) } });
-                        }
-                        if (serverMsg.Contains("JOIN"))
-                        {
-                            string[] parts = serverMsg.Split(":");
-                            string result = parts[2];
-                            CurrentChannel = CreateOrGetChannel(result);
-                            Debug.WriteLine("string parsed " + result + " " + " Cur = " + CurrentChannel.Name);
-                            foreach(Channel c in Channels)
-                            {
-                                Debug.Write(c.Name + ",");
-                            }
-                        }
 
-                        AddTextToScroll(serverMsg, isUserMessage: false, type: MessageType.Received);
+                        Message m = MessageParser.ParseMessage(serverMsg);
+                        var handler = _handlerFactory.GetHandler(m.Command);
+                        handler.Handle(m, this);
+
+                        Debug.WriteLine(serverMsg);
+
                     }
                     await Task.Delay(100);
                 }
@@ -113,7 +114,7 @@ namespace IRC.ViewModels
             }
         }
 
-        private Channel CreateOrGetChannel(string channelName)
+        public Channel CreateOrGetChannel(string channelName)
         {
             if (!Channel.ContainsChannelByName(Channels, channelName))
             {
@@ -127,24 +128,36 @@ namespace IRC.ViewModels
             }
         }
 
-        private void AddTextToScroll(string text, bool isUserMessage, MessageType type)
+        public void AddTextToScroll(string text, Channel destination, bool isUserMessage, MessageType type)
+        {
+            destination.AddMessage(text, type);
+            MessageAdded?.Invoke(isUserMessage);
+        }
+
+        //Overload for if channel is not specified
+        public void AddTextToScroll(string text, bool isUserMessage, MessageType type)
         {
             CurrentChannel.AddMessage(text, type);
             MessageAdded?.Invoke(isUserMessage);
         }
 
-        private void WriteMessageCommand(MessageCommand m)
+        public void WriteMessageCommand(Message m)
         {
             string fullMsg = m.Command;
-            if(m.Args != null)
+            if(m.Params != null)
             {
-                fullMsg += " " + string.Join(" ", m.Args);
+                fullMsg += " " + string.Join(" ", m.Params);
+            }
+            if(m.Trailing != null)
+            {
+                fullMsg += " :" + string.Join(" ", m.Trailing);
             }
             Debug.WriteLine("sent message: " + fullMsg);
-            writer.WriteLine(fullMsg + "\r\n");
+            string formattedMessage = fullMsg + "\r\n";
+            writer.Write(formattedMessage);
             writer.Flush();
 
-            AddTextToScroll(fullMsg, isUserMessage: true, type: MessageType.UserSent);
+            AddTextToScroll(fullMsg, CurrentChannel, isUserMessage: true, type: MessageType.UserSent);
         }
 
         private void OnSendCommand(string message)
@@ -152,11 +165,11 @@ namespace IRC.ViewModels
             Debug.WriteLine("Send command executed"); // Add this line for debugging
             if (!string.IsNullOrEmpty(MessageText))
             {
-                MessageCommand m = CommandParser.ParseCommand(MessageText, CurrentChannel);
+                Message m = CommandParser.ParseCommand(MessageText, CurrentChannel);
 
                 if(CurrentChannel.Name == "---" && m.Command != "JOIN")
                 {
-                    AddTextToScroll("Please join a real channel before sending messages", isUserMessage: true, type: MessageType.Error);
+                    AddTextToScroll("Please join a real channel before sending messages", CurrentChannel, isUserMessage: true, type: MessageType.Error);
                     return;
                 }
                 else
@@ -175,7 +188,7 @@ namespace IRC.ViewModels
         public void Cleanup()
         {
             // Logic to clean up resources, like closing the network stream
-            WriteMessageCommand(new MessageCommand { Command = "QUIT", Args = new List<string> { "Goodbye" } });
+            WriteMessageCommand(new Message { Command = "QUIT", Trailing = "Goodbye" });
             reader?.Close();
             writer?.Close();
             tcpClient?.Close();

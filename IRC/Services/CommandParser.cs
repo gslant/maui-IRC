@@ -11,9 +11,9 @@ namespace IRC.Services
     internal class CommandParser
     {
 
-        public static MessageCommand ParseCommand(string text, Channel currentChannel)
+        public static Message ParseCommand(string text, Channel currentChannel)
         {
-            MessageCommand m = new MessageCommand();
+            Message m = new Message();
             text = text.Trim();
             m.RawMessage = text;
 
@@ -21,15 +21,21 @@ namespace IRC.Services
             {
                 string[] commandParts = text.Split(' ');
                 m.Command = commandParts[0].Substring(1).ToUpper();
-                m.Args = commandParts.Skip(1).ToList();
+                m.Params = commandParts.Skip(1).ToList();
 
-                if (m.Command == "MSG") m.Command = "PRIVMSG";
+                if (m.Command == "MSG")
+                {
+                    m.Command = "PRIVMSG";
+                    m.Params = new List<string>() { commandParts[1] };
+                    m.Trailing = string.Join(" ", commandParts.Skip(2));
+                }
             }
 
             else
             {
                 m.Command = "PRIVMSG";
-                m.Args = new List<string> { currentChannel.Name, text };
+                m.Params = new List<string> { currentChannel.Name };
+                m.Trailing = text;
             }
             return m;
         }

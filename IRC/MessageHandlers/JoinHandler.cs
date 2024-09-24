@@ -23,6 +23,11 @@ namespace IRC.MessageHandlers
                     viewModel.CurrentChannel = viewModel.CreateOrGetChannel(message.Trailing);
                 }
             }
+            else // If join is not for self, i.e a new user joins the channel, handle as default (later this can also update the user list)
+            {
+                var defaultHandler = new PrivmsgHandler();
+                defaultHandler.Handle(message, viewModel);
+            }
         }
     }
 }

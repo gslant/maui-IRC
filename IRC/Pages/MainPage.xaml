@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="IRC.MainPage">
     <ContentView>
+            <!-- 
         <StackLayout>
             <Button Clicked="Freenode_Button_Clicked"
                     Text="Connect Freenode"
@@ -11,8 +12,35 @@
             <Button Clicked="Libera_Button_Clicked"
                     Text="Connect Libera"
                     WidthRequest="200"
-                    HeightRequest="50"/>
+                    HeightRequest="50"/>            
+            
+            
         </StackLayout>
-        
+            -->
+        <VerticalStackLayout Padding="20">
+            <Label Text="Nick" />
+            <Entry x:Name="NicknameEntry" />
+
+            <Label Text="Username" />
+            <Entry x:Name="UsernameEntry"/>
+
+            <Label Text="Real Name" />
+            <Entry x:Name="RealnameEntry"/>
+
+            <Label Text="Hostname" />
+            <Entry x:Name="HostnameEntry"/>
+
+            <Label Text="Port" />
+            <Entry x:Name="PortEntry" Keyboard="Numeric" />
+
+            <Label Text="Password (Optional)" />
+            <Entry x:Name="PasswordEntry" Placeholder="Enter password (Optional)" />
+
+            <Button Text="Submit" 
+                    HorizontalOptions="Center"
+                    Clicked="OnSubmitClicked"/>
+        </VerticalStackLayout>
+
+
     </ContentView>
 </ContentPage>

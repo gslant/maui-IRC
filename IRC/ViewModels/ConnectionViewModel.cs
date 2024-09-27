@@ -18,7 +18,7 @@ namespace IRC.ViewModels
         private StreamWriter _writer;
 
         // IRC connection parameters
-        private string _nick;
+        public string nick { get; private set; }
         private string _username;
         private string _realName;
         private string _hostname;
@@ -70,7 +70,7 @@ namespace IRC.ViewModels
 
         public ConnectionViewModel(string hostname, int port, string nickname, string username, string realname, string? password)
         {
-            _nick = nickname;
+            nick = nickname;
             _username = username;
             _realName = realname;
             _hostname = hostname;
@@ -123,7 +123,7 @@ namespace IRC.ViewModels
         {
             try
             {
-                Message nickMsg = new Message { Command = "NICK", Params = new List<string> { _nick } };
+                Message nickMsg = new Message { Command = "NICK", Params = new List<string> { nick } };
                 WriteMessageCommand(nickMsg);
 
                 Message userMsg = new Message { Command = "USER", Params = new List<string> { _username, "0 * :", _realName } };

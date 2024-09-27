@@ -12,23 +12,24 @@ namespace IRC.ViewModels
 {
     public class ConnectionViewModel : INotifyPropertyChanged
     {
-        TcpClient tcpClient;
-        StreamReader reader;
-        StreamWriter writer;
+        // TCP client and stream I/O
+        public TcpClient TcpClient { get; private set; }
+        private StreamReader _reader;
+        private StreamWriter _writer;
 
-        private string _nick = "billbob123";
-        private string _username = "bill";
-        private string _realName = "bill";
+        // IRC connection parameters
+        public string nick { get; private set; }
+        private string _username;
+        private string _realName;
+        private string _hostname;
+        private int _port;
+
         private string _messageText = string.Empty;
 
         private readonly MessageHandlerFactory _handlerFactory;
 
-        public string Nick
-        {
-            get => _nick;
-            set => _nick = value;
-        }
 
+        // UI binds
         public string MessageText
         {
             get => _messageText;
@@ -67,26 +68,62 @@ namespace IRC.ViewModels
         // Empty delegate so no need to check for subscribers before publishing
         public event Action<bool> MessageAdded = delegate { };
 
-        public ConnectionViewModel(string hostname, int port)
+        public ConnectionViewModel(string hostname, int port, string nickname, string username, string realname, string? password)
         {
-            tcpClient = new TcpClient(hostname, port);
-            reader = new StreamReader(tcpClient.GetStream());
-            writer = new StreamWriter(tcpClient.GetStream());
+            nick = nickname;
+            _username = username;
+            _realName = realname;
+            _hostname = hostname;
+            _port = port;
 
             Channels.Add(CurrentChannel);
 
             _handlerFactory = new MessageHandlerFactory();
 
             SendCommand = new Command<string>(message => OnSendCommand(message));
-
-            InitializeConnection();
         }
 
-        private async void InitializeConnection()
+        public async Task InitializeTcpClient()
+        {
+            TcpClient = new TcpClient();
+            int timeoutMilliseconds = 5000;
+            try
+            {
+                // Attempt to initialize the TcpClient
+                var connectTask = TcpClient.ConnectAsync(_hostname, _port);
+                if(await Task.WhenAny(connectTask, Task.Delay(timeoutMilliseconds)) == connectTask)
+                {
+                    // Connection succeeded within timeout
+                    await connectTask; // In case of exception during connection
+                }
+                else
+                {
+                    throw new TimeoutException($"Connection to {_hostname}:{_port} timed out after {timeoutMilliseconds / 1000} seconds.");
+                }
+
+                // Connection is successful, proceed with your logic
+            }
+            catch (SocketException ex)
+            {
+                // If the connection fails, throw an exception that will be caught by the ConnectionPage
+                throw new Exception($"Failed to connect to {_hostname}:{_port}. Error: {ex.Message}");
+            }
+            catch(TimeoutException ex)
+            {
+                throw new Exception(ex.Message);
+            }
+
+            _reader = new StreamReader(TcpClient.GetStream());
+            _writer = new StreamWriter(TcpClient.GetStream());
+
+            ProcessServerMessagesAsync();
+        }
+
+        private async void ProcessServerMessagesAsync()
         {
             try
             {
-                Message nickMsg = new Message { Command = "NICK", Params = new List<string> { _nick } };
+                Message nickMsg = new Message { Command = "NICK", Params = new List<string> { nick } };
                 WriteMessageCommand(nickMsg);
 
                 Message userMsg = new Message { Command = "USER", Params = new List<string> { _username, "0 * :", _realName } };
@@ -94,7 +131,7 @@ namespace IRC.ViewModels
 
                 while (true)
                 {
-                    string? serverMsg = await reader.ReadLineAsync();
+                    string? serverMsg = await _reader.ReadLineAsync();
                     if (serverMsg != null)
                     {
 
@@ -154,8 +191,8 @@ namespace IRC.ViewModels
             }
             Debug.WriteLine("sent message: " + fullMsg);
             string formattedMessage = fullMsg + "\r\n";
-            writer.Write(formattedMessage);
-            writer.Flush();
+            _writer.Write(formattedMessage);
+            _writer.Flush();
 
             AddTextToScroll(fullMsg, CurrentChannel, isUserMessage: true, type: MessageType.UserSent);
         }
@@ -167,16 +204,9 @@ namespace IRC.ViewModels
             {
                 Message m = CommandParser.ParseCommand(MessageText, CurrentChannel);
 
-                if(CurrentChannel.Name == "---" && m.Command != "JOIN")
-                {
-                    AddTextToScroll("Please join a real channel before sending messages", CurrentChannel, isUserMessage: true, type: MessageType.Error);
-                    return;
-                }
-                else
-                {
-                    WriteMessageCommand(m);
-                    MessageText = string.Empty; // Clear the input field
-                }
+                WriteMessageCommand(m);
+                MessageText = string.Empty; // Clear the input field
+                
             }
         }
 
@@ -188,10 +218,17 @@ namespace IRC.ViewModels
         public void Cleanup()
         {
             // Logic to clean up resources, like closing the network stream
-            WriteMessageCommand(new Message { Command = "QUIT", Trailing = "Goodbye" });
-            reader?.Close();
-            writer?.Close();
-            tcpClient?.Close();
+            try
+            {
+                WriteMessageCommand(new Message { Command = "QUIT", Trailing = "Goodbye" });
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+            }
+            _reader?.Close();
+            _writer?.Close();
+            TcpClient?.Close();
         }
 
     }

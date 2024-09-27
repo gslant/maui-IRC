@@ -10,15 +10,36 @@ namespace IRC
 {
     public partial class ConnectionPage : ContentPage
     {
-        public ConnectionPage(string hostname, int port)
+        public ConnectionPage(string hostname, int port, string nickname, string username, string realname, string? password)
         {
             InitializeComponent();
-
             // Set the BindingContext to an instance of ConnectionViewModel
-            var viewModel = new ConnectionViewModel(hostname, port);
+            var viewModel = new ConnectionViewModel(hostname, port, nickname, username, realname, password);
             BindingContext = viewModel;
 
+            InitializeConnection(hostname, port);
+
             viewModel.MessageAdded += OnMessageAdded;
+        }
+
+        private async void InitializeConnection(string hostname, int port)
+        {
+            try
+            {
+                // Call a method in the ViewModel to initialize the connection (TCPClient)
+                var viewModel = (ConnectionViewModel)BindingContext;
+                await viewModel.InitializeTcpClient();
+
+                // Connection successful, continue as normal
+            }
+            catch (Exception ex)
+            {
+                // Connection failed, navigate back to the form and display an error message
+                await DisplayAlert("Connection Error", $"Failed to connect: {ex.Message}", "OK");
+
+                // Navigate back to the previous page
+                await Navigation.PopAsync();
+            }
         }
 
         private void OnMessageAdded(bool isUserMessage)

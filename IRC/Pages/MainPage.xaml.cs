@@ -11,14 +11,34 @@ namespace IRC
 
         }
 
-        private void Freenode_Button_Clicked(object sender, EventArgs e)
+        private async void OnSubmitClicked(object sender, EventArgs e)
         {
-            Navigation.PushAsync(new ConnectionPage("irc.freenode.net", 6667));
-        }
+            // Validation: Check if mandatory fields are filled
+            if (string.IsNullOrWhiteSpace(NicknameEntry.Text) ||
+                string.IsNullOrWhiteSpace(UsernameEntry.Text) ||
+                string.IsNullOrWhiteSpace(RealnameEntry.Text) ||
+                string.IsNullOrWhiteSpace(HostnameEntry.Text) ||
+                string.IsNullOrWhiteSpace(PortEntry.Text))
+            {
+                await DisplayAlert("Error", "Please fill out all mandatory fields.", "OK");
+                return;
+            }
 
-        private void Libera_Button_Clicked(object sender, EventArgs e)
-        {
-            Navigation.PushAsync(new ConnectionPage("irc.libera.chat", 6667));
+            string nickname = NicknameEntry.Text;
+            string username = UsernameEntry.Text;
+            string realname = RealnameEntry.Text;
+            string hostname = HostnameEntry.Text;
+            int port = int.Parse(PortEntry.Text);
+            string password = PasswordEntry.Text; // Optional field
+
+            try
+            {  
+               await Navigation.PushAsync(new ConnectionPage(hostname, port, nickname, username, realname, password));
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Navigation Error", $"Failed to navigate to ConnectionPage: {ex.Message}", "OK");
+            }
         }
 
     }

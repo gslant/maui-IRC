@@ -204,16 +204,9 @@ namespace IRC.ViewModels
             {
                 Message m = CommandParser.ParseCommand(MessageText, CurrentChannel);
 
-                if(CurrentChannel.Name == "---" && (m.Command != "JOIN" || m.Command != "NICK"))
-                {
-                    AddTextToScroll("Please join a real channel before sending messages", CurrentChannel, isUserMessage: true, type: MessageType.Error);
-                    return;
-                }
-                else
-                {
-                    WriteMessageCommand(m);
-                    MessageText = string.Empty; // Clear the input field
-                }
+                WriteMessageCommand(m);
+                MessageText = string.Empty; // Clear the input field
+                
             }
         }
 

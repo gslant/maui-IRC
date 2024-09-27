@@ -13,6 +13,16 @@ namespace IRC
 
         private async void OnSubmitClicked(object sender, EventArgs e)
         {
+#if DEBUG   
+            string nickname = "billbob123";
+            string username = "billbob123";
+            string realname = "bill bob";
+            string hostname = "irc.libera.chat";
+            int port = 6667;
+            string password = "";
+#endif            
+
+#if !DEBUG
             // Validation: Check if mandatory fields are filled
             if (string.IsNullOrWhiteSpace(NicknameEntry.Text) ||
                 string.IsNullOrWhiteSpace(UsernameEntry.Text) ||
@@ -30,7 +40,7 @@ namespace IRC
             string hostname = HostnameEntry.Text;
             int port = int.Parse(PortEntry.Text);
             string password = PasswordEntry.Text; // Optional field
-
+#endif
             try
             {  
                await Navigation.PushAsync(new ConnectionPage(hostname, port, nickname, username, realname, password));

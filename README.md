@@ -24,7 +24,6 @@ dotnet run
 Or use Visual Studio 2022 17.8 or greater with the .NET Multi-platform App UI development workload
 ### Todo
 - [ ] TLS client support
-- [ ] User login form
 - [ ] Debug mode
 - [ ] Support for enforced nick changes
 - [ ] channel members panel

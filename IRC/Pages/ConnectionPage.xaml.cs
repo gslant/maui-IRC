@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Net.Sockets;
+using static IRC.Models.Message;
 
 namespace IRC
 {
@@ -89,8 +90,8 @@ namespace IRC
 public class Channel : INotifyPropertyChanged
 {
     public string Name { get; set; }
-    private ObservableCollection<MessageDisplay> _messages;
-    public ObservableCollection<MessageDisplay> Messages
+    private ObservableCollection<Message> _messages;
+    public ObservableCollection<Message> Messages
     {
         get => _messages;
         set
@@ -103,12 +104,12 @@ public class Channel : INotifyPropertyChanged
     public Channel(string name)
     {
         Name = name;
-        Messages = new ObservableCollection<MessageDisplay>();
+        Messages = new ObservableCollection<Message>();
     }
 
     public void AddMessage(string text, MessageType type)
     {
-        Messages.Add(new MessageDisplay(text, type));
+        Messages.Add(new Message(text, type));
         OnPropertyChanged(nameof(Messages));
     }
 

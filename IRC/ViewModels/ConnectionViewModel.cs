@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Windows.Input;
+using static IRC.Models.Message;
 
 
 namespace IRC.ViewModels
@@ -190,6 +191,7 @@ namespace IRC.ViewModels
                 fullMsg += " :" + string.Join(" ", m.Trailing);
             }
             Debug.WriteLine("sent message: " + fullMsg);
+
             string formattedMessage = fullMsg + "\r\n";
             _writer.Write(formattedMessage);
             _writer.Flush();

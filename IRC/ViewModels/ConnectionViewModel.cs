@@ -136,7 +136,7 @@ namespace IRC.ViewModels
                     if (serverMsg != null)
                     {
 
-                        Message m = MessageParser.ParseMessage(serverMsg);
+                        Message m = MessageParser.ParseMessage(serverMsg, nick);
                         var handler = _handlerFactory.GetHandler(m.Command);
                         handler.Handle(m, this);
 
@@ -166,16 +166,16 @@ namespace IRC.ViewModels
             }
         }
 
-        public void AddTextToScroll(string text, Channel destination, bool isUserMessage, MessageType type)
+        public void AddTextToScroll(Message m, Channel destination, bool isUserMessage, MessageType type)
         {
-            destination.AddMessage(text, type);
+            destination.AddMessage(m);
             MessageAdded?.Invoke(isUserMessage);
         }
 
         //Overload for if channel is not specified
-        public void AddTextToScroll(string text, bool isUserMessage, MessageType type)
+        public void AddTextToScroll(Message m, bool isUserMessage, MessageType type)
         {
-            CurrentChannel.AddMessage(text, type);
+            CurrentChannel.AddMessage(m);
             MessageAdded?.Invoke(isUserMessage);
         }
 
@@ -196,7 +196,7 @@ namespace IRC.ViewModels
             _writer.Write(formattedMessage);
             _writer.Flush();
 
-            AddTextToScroll(fullMsg, CurrentChannel, isUserMessage: true, type: MessageType.UserSent);
+            AddTextToScroll(m, CurrentChannel, isUserMessage: true, type: MessageType.UserSent);
         }
 
         private void OnSendCommand(string message)

@@ -13,7 +13,7 @@ namespace IRC.MessageHandlers
     {
         public void Handle(Message message, ConnectionViewModel viewModel)
         {
-            viewModel.AddTextToScroll(message.RawMessage, false, MessageType.Received);
+            viewModel.AddTextToScroll(message, false, MessageType.Received);
         }
     }
 }

@@ -107,9 +107,9 @@ public class Channel : INotifyPropertyChanged
         Messages = new ObservableCollection<Message>();
     }
 
-    public void AddMessage(string text, MessageType type)
+    public void AddMessage(Message m)
     {
-        Messages.Add(new Message(text, type));
+        Messages.Add(m);
         OnPropertyChanged(nameof(Messages));
     }
 

@@ -12,7 +12,7 @@ namespace IRC.Services
     internal class MessageParser
     {
 
-        public static Message ParseMessage(string message)
+        public static Message ParseMessage(string message, string currentNick)
         {
             Message m = new Message();
             m.RawMessage = message;
@@ -23,8 +23,17 @@ namespace IRC.Services
             if (parsedMessage[currentPos][0] == ':') //Message has a prefix
             {
                 m.Prefix = parsedMessage[currentPos++].Substring(1); //skip :
+                if (m.Prefix == currentNick)
+                {
+                    m.Type = Message.MessageType.UserSent;
+                }
+                else
+                {
+                    m.Type = Message.MessageType.Received;
+                }
             }
             m.Command = parsedMessage[currentPos++];
+            m.target = parsedMessage[currentPos++];
 
             while (currentPos != parsedMessage.Length)
             {

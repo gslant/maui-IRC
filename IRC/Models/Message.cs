@@ -25,6 +25,7 @@ namespace IRC.Models
         //Only use prefix as registered nickname of self, not required
         public string? Prefix { get; set; }
         public string Command { get; set; }
+
         public List<string> Params { get; set; }
         public string? Trailing { get; set; }
 
@@ -36,10 +37,12 @@ namespace IRC.Models
             get
             {
                 // Show the sender's nickname for user-sent messages
-                if (Type == MessageType.UserSent || Type == MessageType.Received)
+
+                if(Prefix != null)
                 {
-                    return Prefix.Split("!")[0] ?? Command;
+                    return Prefix.Split("!")[0];
                 }
+                
 
                 // For other message types, show the command (JOIN, QUIT, etc.)
                 return Command;

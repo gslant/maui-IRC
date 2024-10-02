@@ -12,15 +12,7 @@ namespace IRC.Models
     public class Message
     {
         public string RawMessage { get; set; }
-        public string Text
-        {
-            get
-            {
-                // Combine Params (joined by space) and the Trailing part, if any
-                var paramsPart = Params != null ? string.Join(" ", Params) : string.Empty;
-                return string.IsNullOrEmpty(Trailing) ? paramsPart : $"{paramsPart}:{Trailing}";
-            }
-        }
+        public string Text { get; set; }
 
         //Only use prefix as registered nickname of self, not required
         public string? Prefix { get; set; }

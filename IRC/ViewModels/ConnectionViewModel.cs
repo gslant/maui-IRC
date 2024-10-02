@@ -67,7 +67,7 @@ namespace IRC.ViewModels
 
         public event PropertyChangedEventHandler? PropertyChanged;
         // Empty delegate so no need to check for subscribers before publishing
-        public event Action<bool> MessageAdded = delegate { };
+        public event Action MessageAdded = delegate { };
 
         public ConnectionViewModel(string hostname, int port, string nickname, string username, string realname, string? password)
         {
@@ -166,17 +166,14 @@ namespace IRC.ViewModels
             }
         }
 
-        public void AddTextToScroll(Message m, Channel destination, bool isUserMessage, MessageType type)
+        public void AddTextToScroll(Message m, Channel destination, bool isUserMessage)
         {
             destination.AddMessage(m);
-            MessageAdded?.Invoke(isUserMessage);
-        }
 
-        //Overload for if channel is not specified
-        public void AddTextToScroll(Message m, bool isUserMessage, MessageType type)
-        {
-            CurrentChannel.AddMessage(m);
-            MessageAdded?.Invoke(isUserMessage);
+            if (isUserMessage) // If user sent the message, triggers an automatic scroll to the bottom of the page
+            {
+                MessageAdded?.Invoke();
+            }
         }
 
         public void WriteMessageCommand(Message m)
@@ -195,8 +192,6 @@ namespace IRC.ViewModels
             string formattedMessage = fullMsg + "\r\n";
             _writer.Write(formattedMessage);
             _writer.Flush();
-
-            AddTextToScroll(m, CurrentChannel, isUserMessage: true, type: MessageType.UserSent);
         }
 
         private void OnSendCommand(string message)
@@ -207,6 +202,7 @@ namespace IRC.ViewModels
                 Message m = CommandParser.ParseCommand(MessageText, CurrentChannel);
 
                 WriteMessageCommand(m);
+                AddTextToScroll(m, CurrentChannel, isUserMessage: true);
                 MessageText = string.Empty; // Clear the input field
                 
             }

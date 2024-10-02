@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Net.Sockets;
 using System.Windows.Input;
+using static IRC.Models.Message;
 
 
 namespace IRC.ViewModels
@@ -28,6 +29,12 @@ namespace IRC.ViewModels
 
         private readonly MessageHandlerFactory _handlerFactory;
 
+        private Channel _currentChannel = new Channel("---");
+        public ICommand SendCommand { get; }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        // Empty delegate so no need to check for subscribers before publishing
+        public event Action MessageAdded = delegate { };
 
         // UI binds
         public string MessageText
@@ -51,7 +58,6 @@ namespace IRC.ViewModels
             }
         }
 
-        private Channel _currentChannel = new Channel("---");
         public Channel CurrentChannel
         {
             get => _currentChannel;
@@ -62,11 +68,6 @@ namespace IRC.ViewModels
             }
         }
 
-        public ICommand SendCommand { get; }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        // Empty delegate so no need to check for subscribers before publishing
-        public event Action<bool> MessageAdded = delegate { };
 
         public ConnectionViewModel(string hostname, int port, string nickname, string username, string realname, string? password)
         {
@@ -135,7 +136,7 @@ namespace IRC.ViewModels
                     if (serverMsg != null)
                     {
 
-                        Message m = MessageParser.ParseMessage(serverMsg);
+                        Message m = MessageParser.ParseMessage(serverMsg, nick);
                         var handler = _handlerFactory.GetHandler(m.Command);
                         handler.Handle(m, this);
 
@@ -165,17 +166,14 @@ namespace IRC.ViewModels
             }
         }
 
-        public void AddTextToScroll(string text, Channel destination, bool isUserMessage, MessageType type)
+        public void AddTextToScroll(Message m, Channel destination, bool isUserMessage)
         {
-            destination.AddMessage(text, type);
-            MessageAdded?.Invoke(isUserMessage);
-        }
+            destination.AddMessage(m);
 
-        //Overload for if channel is not specified
-        public void AddTextToScroll(string text, bool isUserMessage, MessageType type)
-        {
-            CurrentChannel.AddMessage(text, type);
-            MessageAdded?.Invoke(isUserMessage);
+            if (isUserMessage) // If user sent the message, triggers an automatic scroll to the bottom of the page
+            {
+                MessageAdded?.Invoke();
+            }
         }
 
         public void WriteMessageCommand(Message m)
@@ -190,11 +188,10 @@ namespace IRC.ViewModels
                 fullMsg += " :" + string.Join(" ", m.Trailing);
             }
             Debug.WriteLine("sent message: " + fullMsg);
+
             string formattedMessage = fullMsg + "\r\n";
             _writer.Write(formattedMessage);
             _writer.Flush();
-
-            AddTextToScroll(fullMsg, CurrentChannel, isUserMessage: true, type: MessageType.UserSent);
         }
 
         private void OnSendCommand(string message)
@@ -205,6 +202,7 @@ namespace IRC.ViewModels
                 Message m = CommandParser.ParseCommand(MessageText, CurrentChannel);
 
                 WriteMessageCommand(m);
+                AddTextToScroll(m, CurrentChannel, isUserMessage: true);
                 MessageText = string.Empty; // Clear the input field
                 
             }

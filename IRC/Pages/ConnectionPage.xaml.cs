@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Net.Sockets;
+using static IRC.Models.Message;
 
 namespace IRC
 {
@@ -42,9 +43,10 @@ namespace IRC
             }
         }
 
-        private void OnMessageAdded(bool isUserMessage)
+        // If the message is sent by the user, scroll the page to the bottom
+        private void OnMessageAdded()
         {
-            if (isUserMessage && ((ConnectionViewModel)BindingContext).CurrentChannel.Messages.Count > 0)
+            if (((ConnectionViewModel)BindingContext).CurrentChannel.Messages.Count > 0)
             {
                 // Add a delay between scrolls to simulate smooth scrolling
                 this.Dispatcher.StartTimer(TimeSpan.FromMilliseconds(100), () =>
@@ -83,49 +85,5 @@ namespace IRC
                 viewModel.SendCommand.Execute(MessageEntry.Text);
             }
         }
-    }
-}
-
-public class Channel : INotifyPropertyChanged
-{
-    public string Name { get; set; }
-    private ObservableCollection<MessageDisplay> _messages;
-    public ObservableCollection<MessageDisplay> Messages
-    {
-        get => _messages;
-        set
-        {
-            _messages = value;
-            OnPropertyChanged(nameof(Messages));
-        }
-    }
-
-    public Channel(string name)
-    {
-        Name = name;
-        Messages = new ObservableCollection<MessageDisplay>();
-    }
-
-    public void AddMessage(string text, MessageType type)
-    {
-        Messages.Add(new MessageDisplay(text, type));
-        OnPropertyChanged(nameof(Messages));
-    }
-
-    public static Channel? GetChannelByName(ObservableCollection<Channel> channels, string name)
-    {
-        return channels.FirstOrDefault(c => c.Name == name);
-    }
-
-    public static bool ContainsChannelByName(ObservableCollection<Channel> channels, string name)
-    {
-        return channels.Any(c => c.Name == name);
-    }
-
-    public event PropertyChangedEventHandler? PropertyChanged;
-
-    protected virtual void OnPropertyChanged(string propertyName)
-    {
-        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
 }

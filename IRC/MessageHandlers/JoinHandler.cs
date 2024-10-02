@@ -14,7 +14,7 @@ namespace IRC.MessageHandlers
         {
             if (message.Prefix != null && message.Prefix.Split('!')[0] == viewModel.nick) //Only switch channels if JOIN is for self
             {
-                if (message.Params!= null)
+                if (message.Params != null)
                 {
                     viewModel.CurrentChannel = viewModel.CreateOrGetChannel(message.Params[0]);
                 }

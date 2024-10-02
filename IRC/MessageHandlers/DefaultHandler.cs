@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static IRC.Models.Message;
 
 namespace IRC.MessageHandlers
 {
@@ -12,7 +13,7 @@ namespace IRC.MessageHandlers
     {
         public void Handle(Message message, ConnectionViewModel viewModel)
         {
-            viewModel.AddTextToScroll(message.RawMessage, false, MessageType.Received);
+            viewModel.AddTextToScroll(message, viewModel.CurrentChannel, false);
         }
     }
 }

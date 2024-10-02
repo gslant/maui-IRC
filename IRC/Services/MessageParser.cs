@@ -33,7 +33,6 @@ namespace IRC.Services
                 }
             }
             m.Command = parsedMessage[currentPos++];
-            m.target = parsedMessage[currentPos++];
 
             while (currentPos != parsedMessage.Length)
             {

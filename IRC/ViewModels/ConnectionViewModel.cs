@@ -29,6 +29,12 @@ namespace IRC.ViewModels
 
         private readonly MessageHandlerFactory _handlerFactory;
 
+        private Channel _currentChannel = new Channel("---");
+        public ICommand SendCommand { get; }
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+        // Empty delegate so no need to check for subscribers before publishing
+        public event Action MessageAdded = delegate { };
 
         // UI binds
         public string MessageText
@@ -52,7 +58,6 @@ namespace IRC.ViewModels
             }
         }
 
-        private Channel _currentChannel = new Channel("---");
         public Channel CurrentChannel
         {
             get => _currentChannel;
@@ -63,11 +68,6 @@ namespace IRC.ViewModels
             }
         }
 
-        public ICommand SendCommand { get; }
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-        // Empty delegate so no need to check for subscribers before publishing
-        public event Action MessageAdded = delegate { };
 
         public ConnectionViewModel(string hostname, int port, string nickname, string username, string realname, string? password)
         {

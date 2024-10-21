@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using IRC.ViewModels;
+using System.ComponentModel;
 using System.Net.Sockets;
 
 namespace IRC
@@ -14,10 +15,10 @@ namespace IRC
         private async void OnSubmitClicked(object sender, EventArgs e)
         {
 #if DEBUG   
-            string nickname = "billbob123";
+            string nickname = "billb";
             string username = "billbob123";
             string realname = "bill bob";
-            string hostname = "irc.libera.chat";
+            string hostname = "127.0.0.1";
             int port = 6667;
             string password = "";
 #endif            
@@ -41,9 +42,10 @@ namespace IRC
             int port = int.Parse(PortEntry.Text);
             string password = PasswordEntry.Text; // Optional field
 #endif
+            var viewModelFactory = MauiProgram.Services.GetRequiredService<Func<string, int, string, string, string, string?, ConnectionViewModel>>();
             try
             {  
-               await Navigation.PushAsync(new ConnectionPage(hostname, port, nickname, username, realname, password));
+               await Navigation.PushAsync(new ConnectionPage(hostname, port, nickname, username, realname, password, viewModelFactory));
             }
             catch (Exception ex)
             {

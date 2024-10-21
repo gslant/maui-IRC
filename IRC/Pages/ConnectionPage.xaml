@@ -5,6 +5,10 @@
              xmlns:local="clr-namespace:IRC"
              Loaded="OnPageLoaded"
              Unloaded="OnPageUnloaded">
+
+    <Shell.BackButtonBehavior>
+        <BackButtonBehavior Command="{ Binding BackCommand }"/>
+    </Shell.BackButtonBehavior>
     <ContentPage.Resources>
         <ResourceDictionary>
             <local:MessageTypeToColorConverter x:Key="MessageTypeToColorConverter" />

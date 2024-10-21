@@ -11,16 +11,18 @@ namespace IRC
 {
     public partial class ConnectionPage : ContentPage
     {
-        public ConnectionPage(string hostname, int port, string nickname, string username, string realname, string? password)
+        private readonly ConnectionViewModel _connectionViewModel;
+        public ConnectionPage(string hostname, int port, string nickname, string username, string realname, string? password,
+                          Func<string, int, string, string, string, string?, ConnectionViewModel> viewModelFactory)
         {
             InitializeComponent();
             // Set the BindingContext to an instance of ConnectionViewModel
-            var viewModel = new ConnectionViewModel(hostname, port, nickname, username, realname, password);
-            BindingContext = viewModel;
+            _connectionViewModel = viewModelFactory(hostname, port, nickname, username, realname, password);
+            BindingContext = _connectionViewModel;
 
             InitializeConnection(hostname, port);
 
-            viewModel.MessageAdded += OnMessageAdded;
+            _connectionViewModel.MessageAdded += OnMessageAdded;
         }
 
         private async void InitializeConnection(string hostname, int port)
@@ -46,15 +48,28 @@ namespace IRC
         // If the message is sent by the user, scroll the page to the bottom
         private void OnMessageAdded()
         {
-            if (((ConnectionViewModel)BindingContext).CurrentChannel.Messages.Count > 0)
+            var currentChannel = ((ConnectionViewModel)BindingContext).CurrentChannel;
+
+            if (currentChannel.Messages.Count > 0)
             {
                 // Add a delay between scrolls to simulate smooth scrolling
                 this.Dispatcher.StartTimer(TimeSpan.FromMilliseconds(100), () =>
                 {
                     MainThread.BeginInvokeOnMainThread(async () =>
                     {
-                        var lastLabel = (Element)MessageStackLayout.Children[^1];
-                        await MessageScrollView.ScrollToAsync(lastLabel, ScrollToPosition.End, true);
+                        try
+                        {
+                            if(MessageStackLayout.Children.Count > 0)
+                            {
+                                var lastLabel = (Element)MessageStackLayout.Children[^1];
+                                await MessageScrollView.ScrollToAsync(lastLabel, ScrollToPosition.End, true);
+                            }
+
+                        }
+                        catch (Exception ex)
+                        {
+                            Debug.WriteLine(ex);
+                        }
                     });
 
                     return false; // Run only once
@@ -69,11 +84,11 @@ namespace IRC
         }
 
         // Event handler for the Unloaded event
-        private void OnPageUnloaded(object sender, EventArgs e)
+       private async void OnPageUnloaded(object sender, EventArgs e)
         {
             if (BindingContext is ConnectionViewModel viewModel)
             {
-                viewModel.Cleanup();
+                await viewModel.Cleanup();
             }
         }
 

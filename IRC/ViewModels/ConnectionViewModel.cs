@@ -31,6 +31,7 @@ namespace IRC.ViewModels
 
         private Channel _currentChannel = new Channel("---");
         public ICommand SendCommand { get; }
+        public ICommand BackCommand { get; }
 
         public event PropertyChangedEventHandler? PropertyChanged;
         // Empty delegate so no need to check for subscribers before publishing
@@ -82,6 +83,7 @@ namespace IRC.ViewModels
             _handlerFactory = new MessageHandlerFactory();
 
             SendCommand = new Command<string>(message => OnSendCommand(message));
+            BackCommand = new Command(async () => await ExecuteBackCommand());
         }
 
         public async Task InitializeTcpClient()
@@ -213,20 +215,34 @@ namespace IRC.ViewModels
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public void Cleanup()
+        private async Task ExecuteBackCommand()
+        {
+            await Cleanup();
+            await Shell.Current.GoToAsync(".."); // Navigate back after cleanup
+        }
+
+        public async Task Cleanup()
         {
             // Logic to clean up resources, like closing the network stream
             try
             {
-                WriteMessageCommand(new Message { Command = "QUIT", Trailing = "Goodbye" });
+                _writer.WriteLine("QUIT :bye\r\n");
+                _writer.Flush();
+
+                // wait to ensure message is flushed and sent
+                await Task.Delay(500);
+
+                TcpClient.Client.Shutdown(SocketShutdown.Both);
             }
             catch (Exception ex)
             {
                 Debug.WriteLine(ex.ToString());
             }
-            _reader?.Close();
-            _writer?.Close();
-            TcpClient?.Close();
+            finally {
+                _reader?.Close();
+                _writer?.Close();
+                TcpClient?.Close();
+            }
         }
 
     }

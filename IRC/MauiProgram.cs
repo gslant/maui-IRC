@@ -1,9 +1,12 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using IRC.ViewModels;
+using Microsoft.Extensions.Logging;
+using Microsoft.Maui.LifecycleEvents;
 
 namespace IRC
 {
     public static class MauiProgram
     {
+        public static IServiceProvider Services { get; private set; }
         public static MauiApp CreateMauiApp()
         {
             var builder = MauiApp.CreateBuilder();
@@ -16,11 +19,19 @@ namespace IRC
                     fonts.AddFont("JetBrainsMono-Medium.ttf", "JetBrainsMonoMedium");
                 });
 
+            builder.Services.AddTransient<Func<string, int, string, string, string, string?, ConnectionViewModel>>(serviceProvider => 
+            (hostname, port, nickname, username, realname, password) => 
+                new ConnectionViewModel(hostname, port, nickname, username, realname, password));
+
 #if DEBUG
     		builder.Logging.AddDebug();
 #endif
 
-            return builder.Build();
+            var app = builder.Build();
+            Services = app.Services;
+
+            return app;
         }
     }
+
 }

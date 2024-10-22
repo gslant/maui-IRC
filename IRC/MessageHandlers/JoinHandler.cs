@@ -8,6 +8,24 @@ using System.Threading.Tasks;
 
 namespace IRC.MessageHandlers
 {
+    /// The JOIN response is sent by the server to indicate that a user has
+    /// successfully joined a channel.
+    /// 
+    /// Response format:
+    /// 
+    /// ":<nick>!<user>@<host> JOIN :<channel>"
+    ///
+    /// <nick>: The nickname of the user who joined the channel.
+    /// 
+    /// <user>: The user identifier or ident of the user.
+    /// 
+    /// <host>: The hostname or IP address of the user.
+    /// 
+    /// <channel>: The name of the channel that the user joined, prefixed
+    ///            with '#' or '&'.
+    ///
+    /// Example:
+    /// ":billbob!billbob123@123456789 JOIN :#dub"
     public class JoinHandler : IMessageHandler
     {
         public void Handle(Message message, ConnectionViewModel viewModel)

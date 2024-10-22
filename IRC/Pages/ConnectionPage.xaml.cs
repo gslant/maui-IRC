@@ -59,12 +59,14 @@ namespace IRC
                     {
                         try
                         {
-                            if(MessageStackLayout.Children.Count > 0)
-                            {
-                                var lastLabel = (Element)MessageStackLayout.Children[^1];
-                                await MessageScrollView.ScrollToAsync(lastLabel, ScrollToPosition.End, true);
-                            }
+                            var lastMessage = currentChannel.Messages[^1]; // Get the last message
+                            var messageCollectionView = MessageScrollView.FindByName<CollectionView>("MessageScrollView");
 
+                            // Scroll to the last item in the CollectionView
+                            if (messageCollectionView != null)
+                            {
+                                messageCollectionView.ScrollTo(lastMessage, position: ScrollToPosition.End, animate: true);
+                            }
                         }
                         catch (Exception ex)
                         {

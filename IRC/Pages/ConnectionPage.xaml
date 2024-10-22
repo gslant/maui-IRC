@@ -15,6 +15,7 @@
         </ResourceDictionary>
     </ContentPage.Resources>
 
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="100" />
@@ -22,60 +23,64 @@
             <RowDefinition Height="50" />
         </Grid.RowDefinitions>
 
-        <Picker x:Name="channelPicker"
+        <Picker x:Name="channelPicker" Grid.Row="0"
                 Title="Select Channel"
                 ItemsSource="{Binding Channels}"
                 SelectedItem="{Binding CurrentChannel}"
                 ItemDisplayBinding="{Binding Name}"/>
 
-        <ScrollView Grid.Row="1" Margin="20" x:Name="MessageScrollView">
-            <StackLayout x:Name="MessageStackLayout" BindableLayout.ItemsSource="{Binding CurrentChannel.Messages}">
-                <BindableLayout.ItemTemplate>
-                    <DataTemplate>
-                        <Grid Padding="5">
-                            <!-- Define three columns: Timestamp, Sender/Command, and Message -->
-                            <Grid.ColumnDefinitions>
-                                <!-- Fixed width for the timestamp -->
-                                <ColumnDefinition Width="auto" />
-                                <!-- Fixed width for the sender/command -->
-                                <ColumnDefinition Width="200"/>
-                                <!-- The rest of the space for the message text -->
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
+        <ScrollView Grid.Row="1" Padding="0,10,0,10" x:Name="MessageScrollView">
+            <Grid>
+                <Line X1="240" Y1="0" X2="240" Y2="837" Stroke="Gray"/>
+                <CollectionView ItemsSource="{Binding CurrentChannel.Messages}">
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Padding="0" Margin="0">
+                                <!-- Define three columns: Timestamp, Sender/Command, and Message -->
+                                <Grid.ColumnDefinitions>
+                                    <!-- Fixed width for the timestamp -->
+                                    <ColumnDefinition Width="auto" />
+                                    <!-- Fixed width for the sender/command -->
+                                    <ColumnDefinition Width="200"/>
+                                    <!-- The rest of the space for the message text -->
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
 
-                            <!-- Timestamp in HH:mm format (24-hour) -->
-                            <Label 
-                        Grid.Column="0"
-                        Text="{Binding Timestamp, StringFormat='{0:HH:mm}'}" 
-                        FontFamily="JetBrainsMonoMedium" 
-                        HorizontalOptions="Start"
-                        VerticalOptions="Start"
+                                <!-- Timestamp in HH:mm format (24-hour) -->
+                                <Label 
+                                Grid.Column="0"
+                                Text="{Binding Timestamp, StringFormat='{0:HH:mm}'}" 
+                                FontFamily="JetBrainsMonoMedium" 
+                                HorizontalOptions="Start"
+                                VerticalOptions="Start"
                                 TextColor="White" />
 
                                 <!-- Sender or Command (fixed width) -->
-                                <Label 
-                        Grid.Column="1"
-                        Text="{Binding SenderOrCommand}" 
-                        Padding="0,0,10,0"
-                        FontFamily="JetBrainsMonoMedium" 
-                        HorizontalOptions="End"
-                        VerticalOptions="Start"
-                                    TextColor="{Binding Type, Converter={StaticResource MessageTypeToColorConverter}}" />
-
-                                    <!-- Message body in white text -->
+                                <Grid Grid.Column="1" Padding="0" Margin="0">
                                     <Label 
-                        Grid.Column="2" 
-                        Text="{Binding Text}" 
-                        FontFamily="JetBrainsMonoMedium" 
-                        TextColor="White"
-                        HorizontalOptions="StartAndExpand"
-                        VerticalOptions="Start"
-                                        LineBreakMode="WordWrap"
-                                        />
-                        </Grid>
-                    </DataTemplate>
-                </BindableLayout.ItemTemplate>
-            </StackLayout>
+                                    Text="{Binding SenderOrCommand}" 
+                                    Padding="0,0,10,0"
+                                    FontFamily="JetBrainsMonoMedium" 
+                                    HorizontalOptions="End"
+                                    VerticalOptions="Start"
+                                    TextColor="{Binding Type, Converter={StaticResource MessageTypeToColorConverter}}" />
+                                </Grid>
+
+                                <!-- Message body in white text -->
+                                <Label 
+                                Grid.Column="2" 
+                                Text="{Binding Text}" 
+                                Padding="0,0,5,5"
+                                FontFamily="JetBrainsMonoMedium" 
+                                TextColor="White"
+                                HorizontalOptions="StartAndExpand"
+                                VerticalOptions="Start"
+                                LineBreakMode="WordWrap" />
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+                </CollectionView>
+            </Grid>
         </ScrollView>
 
         <Grid Grid.Row="2" ColumnSpacing="20">

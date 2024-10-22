@@ -18,7 +18,7 @@ namespace IRC.Services
             m.RawMessage = message;
         
             int currentPos = 0;
-            string[] parsedMessage = message.Split(' ');
+            string[] parsedMessage = message.Trim().Split(' ');
                 
             if (parsedMessage[currentPos][0] == ':') //Message has a prefix
             {

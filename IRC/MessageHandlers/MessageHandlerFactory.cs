@@ -15,7 +15,8 @@ namespace IRC.MessageHandlers
                 "JOIN" => new JoinHandler(),
                 "PING" => new PingHandler(),
                 "PRIVMSG" => new PrivmsgHandler(),
-                "366" => new NamesHandler(),
+                "353" => new NamesHandler(),
+                "MODE" => new ModeHandler(),
                 _ => new DefaultHandler(),
             };
         }

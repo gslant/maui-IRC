@@ -12,6 +12,7 @@ namespace IRC.MessageHandlers
     {
         public void Handle(Message message, ConnectionViewModel viewModel)
         {
+            message.doDisplay = false;
             if (message.Prefix != null && message.Prefix.Split('!')[0] == viewModel.nick) //Only switch channels if JOIN is for self
             {
                 if (message.Params != null)
@@ -23,14 +24,13 @@ namespace IRC.MessageHandlers
                     viewModel.CurrentChannel = viewModel.CreateOrGetChannel(message.Trailing);
                 }
             }
-            else// If join is not for self, i.e a new user joins the channel, handle as PRIVMSG (later this can also update the user list)
+            else// If join is not for self, i.e a new user joins the channel
             {
                 if(message.Prefix != null)
                 {
                     message.Text = " has joined the channel";
                 }
-                var defaultHandler = new PrivmsgHandler();
-                defaultHandler.Handle(message, viewModel);
+                viewModel.AddTextToScroll(message, viewModel.CurrentChannel, false);
             }
         }
     }

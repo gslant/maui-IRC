@@ -18,7 +18,7 @@ namespace IRC.MessageHandlers
             {
                 destination = viewModel.CreateOrGetChannel(message.Params[0]);
             }
-            else
+            else // is to/from another user 
             {
                 string[] sender = message.Prefix.Split('!');
                 destination = viewModel.CreateOrGetChannel(sender[0]);

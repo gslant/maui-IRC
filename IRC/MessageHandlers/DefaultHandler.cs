@@ -14,8 +14,17 @@ namespace IRC.MessageHandlers
         public void Handle(Message message, ConnectionViewModel viewModel)
         {
             // Combine Params (joined by space) and the Trailing part, if any
-            var paramsPart = message.Params != null ? string.Join(" ", message.Params) : string.Empty;
+            string paramsPart = message.Params != null ? string.Join("", message.Params) : string.Empty;
+            if (paramsPart.StartsWith(viewModel.nick))
+            {
+                paramsPart = paramsPart.Substring(viewModel.nick.Length);
+            }
             message.Text = string.IsNullOrEmpty(message.Trailing) ? paramsPart : $"{paramsPart}:{message.Trailing}";
+
+            if (message.Text.StartsWith(':'))
+            {
+                message.Text = message.Text.Substring(1);
+            }
 
             Channel dest = viewModel.CurrentChannel;
             if (message.Params != null && message.Params[0].StartsWith('#'))

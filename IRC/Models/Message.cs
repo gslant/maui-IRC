@@ -24,6 +24,8 @@ namespace IRC.Models
         public MessageType Type { get; set; }
         public DateTime Timestamp { get; set; }
 
+        public bool doDisplay { get; set; }
+
         public string SenderOrCommand
         {
             get
@@ -33,8 +35,7 @@ namespace IRC.Models
                 if(Prefix != null)
                 {
                     return Prefix.Split("!")[0];
-                }
-                
+                }              
 
                 // For other message types, show the command (JOIN, QUIT, etc.)
                 return Command;
@@ -44,11 +45,13 @@ namespace IRC.Models
         {
             Type = type;
             Timestamp = DateTime.Now;
+            doDisplay = true;
         }
 
         public Message()
         {
             Timestamp = DateTime.Now;
+            doDisplay=true;
         }
 
 

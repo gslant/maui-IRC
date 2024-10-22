@@ -127,10 +127,10 @@ namespace IRC.ViewModels
             try
             {
                 Message nickMsg = new Message { Command = "NICK", Params = new List<string> { nick } };
-                WriteMessageCommand(nickMsg);
+                WriteMessageToStream(nickMsg);
 
                 Message userMsg = new Message { Command = "USER", Params = new List<string> { _username, "0 * :", _realName } };
-                WriteMessageCommand(userMsg);
+                WriteMessageToStream(userMsg);
 
                 while (true)
                 {
@@ -178,7 +178,7 @@ namespace IRC.ViewModels
             }
         }
 
-        public void WriteMessageCommand(Message m)
+        public void WriteMessageToStream(Message m)
         {
             string fullMsg = m.Command;
             if(m.Params != null)
@@ -198,13 +198,15 @@ namespace IRC.ViewModels
 
         private void OnSendCommand(string message)
         {
-            Debug.WriteLine("Send command executed"); // Add this line for debugging
             if (!string.IsNullOrEmpty(MessageText))
             {
                 Message m = CommandParser.ParseCommand(MessageText, CurrentChannel);
-
-                WriteMessageCommand(m);
-                AddTextToScroll(m, CurrentChannel, isUserMessage: true);
+                WriteMessageToStream(m);
+                if (m.doDisplay)
+                {
+                    m.Prefix = nick;
+                    AddTextToScroll(m, CurrentChannel, isUserMessage: true);
+                }
                 MessageText = string.Empty; // Clear the input field
                 
             }

@@ -19,6 +19,7 @@ namespace IRC.Services
 
             if (text.StartsWith("/"))
             {
+                m.doDisplay = false;
                 string[] commandParts = text.Split(' ');
                 m.Command = commandParts[0].Substring(1).ToUpper();
                 m.Params = commandParts.Skip(1).ToList();
@@ -36,6 +37,7 @@ namespace IRC.Services
                 m.Command = "PRIVMSG";
                 m.Params = new List<string> { currentChannel.Name };
                 m.Trailing = text;
+                m.Text = text;
             }
             return m;
         }

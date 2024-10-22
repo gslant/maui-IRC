@@ -8,14 +8,12 @@ using System.Threading.Tasks;
 
 namespace IRC.MessageHandlers
 {
-    public class PingHandler : IMessageHandler
+    public class NamesHandler : IMessageHandler
     {
         public void Handle(Message message, ConnectionViewModel viewModel)
         {
-            Message response = new Message();
-            response.Command = "PONG";
-            response.Trailing = message.Trailing;
-            viewModel.WriteMessageToStream(response);
+            message.Text = "Users : "  + message.Params;
+            viewModel.AddTextToScroll(message, viewModel.CurrentChannel, false);
         }
     }
 }
